@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Checkout - Antique Jewellers</title>
+
+    <link rel="stylesheet" href="checkout.css">
+
+</head>
+
+
+<body>
+
+
+<section class="checkout">
+
+<div class="checkout-container">
+
+    <h1>Checkout</h1>
+
+    <p class="checkout-subtitle">
+
+        Complete your details to place your order.
+
+    </p>
+
+
+    <form id="orderForm">
+
+
+        <!-- Customer Information -->
+
+        <h2>Delivery Information</h2>
+
+
+        <label for="name">Full Name</label>
+
+        <input
+            type="text"
+            id="name"
+            name="name"
+            placeholder="Enter your full name"
+            required
+        >
+
+
+        <label for="phone">Phone Number</label>
+
+        <input
+            type="tel"
+            id="phone"
+            name="phone"
+            placeholder="03XX-XXXXXXX"
+            required
+        >
+
+
+        <label for="address">Complete Address</label>
+
+        <textarea
+            id="address"
+            name="address"
+            placeholder="Enter your complete delivery address"
+            required
+        ></textarea>
+
+
+        <label for="city">City</label>
+
+        <input
+            type="text"
+            id="city"
+            name="city"
+            placeholder="Enter your city"
+            required
+        >
+
+
+        <!-- Order Summary -->
+
+        <h2>Order Summary</h2>
+
+
+        <div class="order-summary" id="orderSummary">
+
+        </div>
+
+
+        <!-- Payment Method -->
+
+        <h2>Payment Method</h2>
+
+
+        <div class="payment-method">
+
+
+            <label>
+
+                <input
+                    type="radio"
+                    name="payment"
+                    value="JazzCash / Easypaisa"
+                    checked
+                    onchange="showPaymentInfo()"
+                >
+
+                JazzCash — 03001119218 / Easypaisa — 03457939147
+
+            </label>
+
+
+            <label>
+
+                <input
+                    type="radio"
+                    name="payment"
+                    value="Debit Card"
+                    onchange="showPaymentInfo()"
+                >
+
+                Debit Card - If you want to pay through debit card then press Call Now.
+
+            </label>
+
+
+            <div
+                id="debit-card-info"
+                class="debit-card-info"
+                style="display:none;"
+            >
+
+                <p>
+
+                    Debit card payment ke liye humse contact karein.
+
+                </p>
+
+
+                <a
+                    href="tel:03001119218"
+                    class="call-button"
+                >
+
+                    📞 CALL NOW
+
+                </a>
+
+            </div>
+
+
+        </div>
+
+
+        <button
+            type="submit"
+            class="place-order"
+        >
+
+            PLACE ORDER
+
+        </button>
+
+
+    </form>
+
+
+
+    <!-- Order Confirmation -->
+
+    <div
+        id="orderConfirmation"
+        class="order-confirmation"
+        style="display:none;"
+    >
+
+
+        <div class="success-icon">✓</div>
+
+
+        <h1>Order Confirmed!</h1>
+
+
+        <p class="success-message">
+
+            Thank you for your order!
+
+        </p>
+
+
+        <p class="order-number">
+
+            Order Number:
+
+            <strong id="orderNumber"></strong>
+
+        </p>
+
+
+        <div class="confirmation-details">
+
+            <h2>Order Details</h2>
+
+            <div id="confirmationProducts"></div>
+
+            <p>
+
+                <span>Total</span>
+
+                <strong id="confirmationTotal"></strong>
+
+            </p>
+
+            <p>
+
+                <span>Payment Method</span>
+
+                <strong id="confirmationPayment"></strong>
+
+            </p>
+
+        </div>
+
+
+        <div class="customer-details">
+
+            <h2>Delivery Details</h2>
+
+
+            <p>
+
+                <span>Name</span>
+
+                <strong id="confirmationName"></strong>
+
+            </p>
+
+
+            <p>
+
+                <span>Phone</span>
+
+                <strong id="confirmationPhone"></strong>
+
+            </p>
+
+
+            <p>
+
+                <span>Address</span>
+
+                <strong id="confirmationAddress"></strong>
+
+            </p>
+
+
+            <p>
+
+                <span>City</span>
+
+                <strong id="confirmationCity"></strong>
+
+            </p>
+
+        </div>
+
+
+        <button
+            type="button"
+            class="continue-shopping"
+            onclick="window.location.href='index.html'"
+        >
+
+            CONTINUE SHOPPING
+
+        </button>
+
+
+    </div>
+
+
+</div>
+
+</section>
+
+
+
+<script>
+
+
+// Get Cart Products
+
+function getCart() {
+
+    return JSON.parse(localStorage.getItem("cart")) || [];
+
+}
+
+
+// Calculate Total
+
+function calculateTotal(cart) {
+
+    return cart.reduce(
+
+        (total, item) => total + item.price * item.quantity,
+
+        0
+
+    );
+
+}
+
+
+// Display Order Summary
+
+function displayOrderSummary() {
+
+    const cart = getCart();
+
+    const summary = document.getElementById("orderSummary");
+
+
+    if (cart.length === 0) {
+
+        summary.innerHTML = "<p>Your cart is empty. Please add products first.</p>";
+
+        document.querySelector(".place-order").disabled = true;
+
+        return;
+
+    }
+
+
+    let total = 0;
+
+    let html = "";
+
+
+    cart.forEach(item => {
+
+        const itemTotal = item.price * item.quantity;
+
+        total += itemTotal;
+
+
+        html += `
+
+            <p>
+
+                <span>${item.name} (${item.design}) × ${item.quantity}</span>
+
+                <span>Rs. ${itemTotal.toLocaleString("en-PK")}</span>
+
+            </p>
+
+        `;
+
+    });
+
+
+    html += `
+
+        <p class="total">
+
+            <span>Total</span>
+
+            <span>Rs. ${total.toLocaleString("en-PK")}</span>
+
+        </p>
+
+    `;
+
+
+    summary.innerHTML = html;
+
+}
+
+
+// Show / Hide Debit Card Information
+
+function showPaymentInfo() {
+
+    const debitCard = document.querySelector('input[value="Debit Card"]');
+
+    const debitInfo = document.getElementById("debit-card-info");
+
+
+    debitInfo.style.display = debitCard.checked ? "block" : "none";
+
+}
+
+
+// Display Summary
+
+displayOrderSummary();
+
+
+
+// Place Order
+
+document.getElementById("orderForm").addEventListener(
+
+    "submit",
+
+    async function(event) {
+
+        event.preventDefault();
+
+
+        const form = this;
+
+        const cart = getCart();
+
+
+        if (cart.length === 0) {
+
+            alert("Your cart is empty!");
+
+            return;
+
+        }
+
+
+        const name = document.getElementById("name").value.trim();
+
+        const phone = document.getElementById("phone").value.trim();
+
+        const address = document.getElementById("address").value.trim();
+
+        const city = document.getElementById("city").value.trim();
+
+
+        const payment = document.querySelector(
+
+            'input[name="payment"]:checked'
+
+        ).value;
+
+
+        const total = calculateTotal(cart);
+
+
+        const orderNumber =
+
+            "AJ" + Math.floor(1000 + Math.random() * 9000);
+
+
+        // Prepare Order Information
+
+        const productDetails = cart.map(item => {
+
+            return `${item.name} - ${item.design} - Quantity: ${item.quantity} - Price: Rs. ${item.price}`;
+
+        }).join("\n");
+
+
+        const hiddenFields = {
+
+            "Order Number": orderNumber,
+
+            "Products": productDetails,
+
+            "Total": "Rs. " + total.toLocaleString("en-PK"),
+
+            "Payment Method": payment
+
+        };
+
+
+        Object.entries(hiddenFields).forEach(([key, value]) => {
+
+            const input = document.createElement("input");
+
+            input.type = "hidden";
+
+            input.name = key;
+
+            input.value = value;
+
+            form.appendChild(input);
+
+        });
+
+
+        const submitButton = form.querySelector(".place-order");
+
+        submitButton.disabled = true;
+
+        submitButton.textContent = "PLACING ORDER...";
+
+
+        try {
+
+
+            // Send Order to Formspree
+
+            const response = await fetch(
+
+                "https://formspree.io/f/xgavwjan",
+
+                {
+
+                    method: "POST",
+
+                    body: new FormData(form),
+
+                    headers: {
+
+                        "Accept": "application/json"
+
+                    }
+
+                }
+
+            );
+
+
+            if (!response.ok) {
+
+                throw new Error("Order could not be sent.");
+
+            }
+
+
+            // Confirmation Details
+
+            document.getElementById("orderNumber").textContent = orderNumber;
+
+            document.getElementById("confirmationName").textContent = name;
+
+            document.getElementById("confirmationPhone").textContent = phone;
+
+            document.getElementById("confirmationAddress").textContent = address;
+
+            document.getElementById("confirmationCity").textContent = city;
+
+            document.getElementById("confirmationPayment").textContent = payment;
+
+            document.getElementById("confirmationTotal").textContent =
+
+                "Rs. " + total.toLocaleString("en-PK");
+
+
+            // Confirmation Products
+
+            const confirmationProducts = document.getElementById("confirmationProducts");
+
+            confirmationProducts.innerHTML = "";
+
+
+            cart.forEach(item => {
+
+                const p = document.createElement("p");
+
+                p.textContent = `${item.name} (${item.design}) × ${item.quantity}`;
+
+                confirmationProducts.appendChild(p);
+
+            });
+
+
+            // Clear Cart After Successful Order
+
+            localStorage.removeItem("cart");
+
+
+            // Hide Form
+
+            form.style.display = "none";
+
+
+            document.querySelector(".checkout-container > h1").style.display = "none";
+
+            document.querySelector(".checkout-subtitle").style.display = "none";
+
+
+            // Show Confirmation
+
+            document.getElementById("orderConfirmation").style.display = "block";
+
+
+        }
+
+
+        catch(error) {
+
+            alert("Sorry, your order could not be sent. Please try again.");
+
+            submitButton.disabled = false;
+
+            submitButton.textContent = "PLACE ORDER";
+
+        }
+
+    }
+
+);
+
+
+</script>
+
+
+</body>
+
+</html>

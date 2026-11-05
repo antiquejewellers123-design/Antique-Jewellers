@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cart - Antique Jewellers</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+
+            margin: 0;
+
+            background: #faf8f2;
+
+            color: #292522;
+
+            font-family: Arial, sans-serif;
+
+        }
+
+
+        .cart-page {
+
+            max-width: 900px;
+
+            margin: 80px auto;
+
+            padding: 40px;
+
+        }
+
+
+        h1 {
+
+            text-align: center;
+
+            font-family: Georgia, serif;
+
+            font-size: 50px;
+
+            font-weight: normal;
+
+            margin-bottom: 50px;
+
+        }
+
+
+        .cart-item {
+
+            background: white;
+
+            border: 1px solid #dfd0b5;
+
+            padding: 25px;
+
+            margin-bottom: 20px;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            gap: 15px;
+
+            box-shadow: 0 10px 30px rgba(80, 60, 30, 0.08);
+
+        }
+
+
+        .cart-item h2 {
+
+            font-family: Georgia, serif;
+
+            margin: 0 0 10px;
+
+        }
+
+
+        .cart-price {
+
+            color: #b07d26;
+
+            font-size: 20px;
+
+            font-weight: bold;
+
+        }
+
+
+        .quantity-controls {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            margin-top: 15px;
+
+        }
+
+
+        .quantity-controls button {
+
+            background: #b07d26;
+
+            color: white;
+
+            border: none;
+
+            padding: 7px 12px;
+
+            cursor: pointer;
+
+            font-size: 17px;
+
+        }
+
+
+        .remove-btn {
+
+            background: none;
+
+            border: none;
+
+            color: #a33;
+
+            cursor: pointer;
+
+            margin-top: 12px;
+
+            text-decoration: underline;
+
+        }
+
+
+        .cart-total {
+
+            margin-top: 30px;
+
+            text-align: right;
+
+            font-size: 22px;
+
+            font-weight: bold;
+
+        }
+
+
+        .checkout-btn {
+
+            display: block;
+
+            width: 230px;
+
+            margin: 30px 0 0 auto;
+
+            padding: 15px;
+
+            background: #b07d26;
+
+            color: white;
+
+            text-decoration: none;
+
+            text-align: center;
+
+            border-radius: 4px;
+
+        }
+
+
+        .checkout-btn:hover {
+
+            background: #292522;
+
+        }
+
+
+        .back-btn {
+
+            display: inline-block;
+
+            margin-top: 25px;
+
+            color: #292522;
+
+            text-decoration: none;
+
+        }
+
+
+        .empty-cart {
+
+            text-align: center;
+
+            font-size: 20px;
+
+            padding: 40px;
+
+        }
+
+
+        @media (max-width: 600px) {
+
+            .cart-page {
+
+                padding: 20px;
+
+                margin: 40px auto;
+
+            }
+
+            h1 {
+
+                font-size: 40px;
+
+            }
+
+            .cart-item {
+
+                flex-direction: column;
+
+                align-items: flex-start;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<section class="cart-page">
+
+    <h1>Your Cart</h1>
+
+
+    <div id="cartItems"></div>
+
+
+    <div class="cart-total" id="cartTotal"></div>
+
+
+    <a href="checkout.html" class="checkout-btn" id="checkoutBtn">
+
+        PROCEED TO CHECKOUT
+
+    </a>
+
+
+    <a href="index.html" class="back-btn">
+
+        ← Continue Shopping
+
+    </a>
+
+</section>
+
+
+
+<script>
+
+
+function getCart() {
+
+    return JSON.parse(localStorage.getItem("cart")) || [];
+
+}
+
+
+// Display Cart
+
+function displayCart() {
+
+    const cart = getCart();
+
+    const cartItems = document.getElementById("cartItems");
+
+    const cartTotal = document.getElementById("cartTotal");
+
+    const checkoutBtn = document.getElementById("checkoutBtn");
+
+
+    cartItems.innerHTML = "";
+
+
+    if (cart.length === 0) {
+
+        cartItems.innerHTML = `
+
+            <div class="empty-cart">
+
+                Your cart is empty!
+
+                <br><br>
+
+                <a href="index.html">Continue Shopping</a>
+
+            </div>
+
+        `;
+
+        cartTotal.innerHTML = "";
+
+        checkoutBtn.style.display = "none";
+
+        return;
+
+    }
+
+
+    checkoutBtn.style.display = "block";
+
+
+    let total = 0;
+
+
+    cart.forEach((item, index) => {
+
+        const itemTotal = item.price * item.quantity;
+
+        total += itemTotal;
+
+
+        cartItems.innerHTML += `
+
+            <div class="cart-item">
+
+                <div>
+
+                    <h2>${item.name}</h2>
+
+                    <p>${item.design}</p>
+
+                    <p>Price: Rs. ${item.price.toLocaleString("en-PK")}</p>
+
+                    <div class="quantity-controls">
+
+                        <button onclick="changeQuantity(${index}, -1)">−</button>
+
+                        <span>${item.quantity}</span>
+
+                        <button onclick="changeQuantity(${index}, 1)">+</button>
+
+                    </div>
+
+                    <button class="remove-btn" onclick="removeItem(${index})">
+
+                        Remove Product
+
+                    </button>
+
+                </div>
+
+
+                <div class="cart-price">
+
+                    Rs. ${itemTotal.toLocaleString("en-PK")}
+
+                </div>
+
+            </div>
+
+        `;
+
+    });
+
+
+    cartTotal.innerHTML = `
+
+        Total: Rs. ${total.toLocaleString("en-PK")}
+
+    `;
+
+}
+
+
+// Change Quantity
+
+function changeQuantity(index, amount) {
+
+    let cart = getCart();
+
+    cart[index].quantity += amount;
+
+
+    if (cart[index].quantity <= 0) {
+
+        cart.splice(index, 1);
+
+    }
+
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+
+    displayCart();
+
+}
+
+
+// Remove Product
+
+function removeItem(index) {
+
+    let cart = getCart();
+
+    cart.splice(index, 1);
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+
+    displayCart();
+
+}
+
+
+displayCart();
+
+
+</script>
+
+
+</body>
+
+</html>
